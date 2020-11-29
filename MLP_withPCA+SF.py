@@ -205,7 +205,7 @@ if __name__ == '__main__':
     random_state = 42
     os.environ['PYTHONHASHSEED'] = "42"
     np.random.seed(42)
-    tf.random.set_random_seed(42)
+    tf.random.set_seed(42)
     random.seed(42)
     
     x_train,y_train,x_val,y_val,x_test,y_test,n_of_features,scaler_y = generate_dataset(components,random_state)
