@@ -124,7 +124,7 @@ def create_model(n_of_features,dropout,l2,lr,random_state):
     model.compile(loss='mean_absolute_error',optimizer=Adam(lr=lr))
     return model;
 
-def train(x_train, y_train,x_val,y_val,epoch,batch_size,patience):
+def train(x_train, y_train,x_val,y_val,epochs,batch_size,patience):
     cb =[EarlyStopping(monitor='val_loss', patience=patience, verbose =1, restore_best_weights=True)]
     history = model.fit(x_train, y_train,validation_data=(x_val, y_val),epochs=epochs, batch_size=batch_size, verbose=1, callbacks= cb)
     
@@ -194,7 +194,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     components=args.pca
     trial_name=str(args.trial_name)
-    epoch=args.epoch
+    epochs=args.epoch
     patience=args.patience
    
     dropout = 0.15
@@ -210,6 +210,6 @@ if __name__ == '__main__':
     
     x_train,y_train,x_val,y_val,x_test,y_test,n_of_features,scaler_y = generate_dataset(components,random_state)
     model=create_model(n_of_features,dropout,l2,lr,random_state)
-    trained_model = train(x_train, y_train,x_val,y_val,epoch,batch_size,patience)
+    trained_model = train(x_train, y_train,x_val,y_val,epochs,batch_size,patience)
     validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name)
     save_model(trained_model,trial_name)
