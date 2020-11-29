@@ -21,12 +21,6 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.pipeline import Pipeline
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
-
-config = tf.compat.v1.ConfigProto( device_count = {'GPU': 1 } ) 
-sess = tf.compat.v1.Session(config=config) 
-tf.compat.v1.keras.backend.set_session(sess)
-tf.debugging.set_log_device_placement(True)
-
 #def get_exponential_distance(x,minimum,a=60):
 #	positive_x= x-minimum
 #	numerator = np.exp(positive_x.div(a))
@@ -46,6 +40,7 @@ def get_powed_distance(x,minimum,b=1.1):
 
 
 def generate_dataset(components,random_state):
+    print("Creating Dataset")
     file = p.read_csv('lorawan_antwerp_2019_dataset_withSF.csv')
     columns = file.columns
     x = file[columns[0:72]]
@@ -90,11 +85,12 @@ def generate_dataset(components,random_state):
         print(x_test.shape)    
     
     n_of_features = x_train.shape[1]
+    print("Done Generating Dataset")
     return x_train,y_train,x_val,y_val,x_test,y_test,n_of_features,scaler_y
 
 
 def create_model(n_of_features,dropout,l2,lr,random_state):
-    
+    print("Creating Model")
     model = Sequential()
     model.add(Dense(units=1024, input_dim=n_of_features, kernel_regularizer=regularizers.l2(l2)))
     model.add(BatchNormalization())
@@ -122,9 +118,11 @@ def create_model(n_of_features,dropout,l2,lr,random_state):
     # model.add(Dropout(dropout))
     model.add(Dense(units=2))
     model.compile(loss='mean_absolute_error',optimizer=Adam(lr=lr))
+    print("Done creating Model")
     return model;
 
 def train(x_train, y_train,x_val,y_val,epochs,batch_size,patience):
+    print("Start Training")
     cb =[EarlyStopping(monitor='val_loss', patience=patience, verbose =1, restore_best_weights=True)]
     history = model.fit(x_train, y_train,validation_data=(x_val, y_val),epochs=epochs, batch_size=batch_size, verbose=1, callbacks= cb)
     
@@ -136,6 +134,7 @@ def train(x_train, y_train,x_val,y_val,epochs,batch_size,patience):
     plt.legend(['train', 'test'], loc='upper left')
     plt.savefig('training_curves.png')
     plt.show()
+    print("training_complete")
     trained_model= model
     return trained_model
 
@@ -184,7 +183,12 @@ def save_model(trained_model,trial_name):
 
 
 if __name__ == '__main__':
-    
+
+    config = tf.compat.v1.ConfigProto( device_count = {'GPU': 1 } ) 
+    sess = tf.compat.v1.Session(config=config) 
+    tf.compat.v1.keras.backend.set_session(sess)
+    tf.debugging.set_log_device_placement(True)
+
     parser = argparse.ArgumentParser(description="--trial-name, --pca, --epoch,--patience")
     parser.add_argument('--trial-name',type=str,required=True)
     parser.add_argument('--pca',type=int,default=0,help='Principal Component')
