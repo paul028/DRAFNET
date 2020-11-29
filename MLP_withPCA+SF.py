@@ -134,7 +134,6 @@ def train(x_train, y_train,x_val,y_val,epochs,batch_size,patience):
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     plt.savefig('training_curves.png')
-    plt.show()
     print("training_complete")
     trained_model= model
     return trained_model
