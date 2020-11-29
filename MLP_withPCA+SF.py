@@ -66,7 +66,7 @@ def generate_dataset(components,random_state):
     if components >0:
         pca = PCA(n_components =components) 
           
-        x_train = pca.fit_transform(final_x) 
+        final_x = pca.fit_transform(final_x) 
         explained_variance = pca.explained_variance_ratio_ 
     
         final_x =np.column_stack((final_x,SF))
