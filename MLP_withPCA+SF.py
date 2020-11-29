@@ -64,6 +64,7 @@ def generate_dataset(components,random_state):
     SF=scaler_sf.transform(SF)
     
     if components >0:
+        print("PCA enabled",40)
         pca = PCA(n_components =components) 
           
         final_x = pca.fit_transform(final_x) 
