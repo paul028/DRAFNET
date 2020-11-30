@@ -70,7 +70,7 @@ def generate_dataset(components,random_state):
         final_x = pca.fit_transform(final_x) 
         explained_variance = pca.explained_variance_ratio_ 
     
-        final_x =np.column_stack((final_x,SF))
+#        final_x =np.column_stack((final_x,SF))
         x_train, x_test_val, y_train, y_test_val = train_test_split(final_x, y, test_size=0.3, random_state=random_state)
         x_val, x_test, y_val, y_test = train_test_split(x_test_val, y_test_val, test_size=0.5, random_state=random_state)
         print(x_train.shape)
@@ -78,7 +78,7 @@ def generate_dataset(components,random_state):
         print(x_test.shape)
     
     else:
-        final_x =np.column_stack((final_x,SF))
+#        final_x =np.column_stack((final_x,SF))
         x_train, x_test_val, y_train, y_test_val = train_test_split(final_x, y, test_size=0.3, random_state=random_state)
         x_val, x_test, y_val, y_test = train_test_split(x_test_val, y_test_val, test_size=0.5, random_state=random_state)
         print(x_train.shape)
