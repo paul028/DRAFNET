@@ -39,7 +39,7 @@ def get_powed_distance(x,minimum,b=1.1):
 	return final_x
 
 
-def generate_dataset(components,random_state):
+def generate_dataset(components,random_state,sf_n):
     print("Creating Dataset")
     file = p.read_csv('lorawan_antwerp_2019_dataset_withSF.csv')
     columns = file.columns
@@ -70,12 +70,21 @@ def generate_dataset(components,random_state):
         final_x = pca.fit_transform(final_x) 
         explained_variance = pca.explained_variance_ratio_ 
     
-        final_x =np.column_stack((final_x,SF))
-        x_train, x_test_val, y_train, y_test_val = train_test_split(final_x, y, test_size=0.3, random_state=random_state)
-        x_val, x_test, y_val, y_test = train_test_split(x_test_val, y_test_val, test_size=0.5, random_state=random_state)
-        print(x_train.shape)
-        print(x_val.shape)
-        print(x_test.shape)
+        if sf_n>0:
+            print("SF enabled")
+            final_x =np.column_stack((final_x,SF))
+            x_train, x_test_val, y_train, y_test_val = train_test_split(final_x, y, test_size=0.3, random_state=random_state)
+            x_val, x_test, y_val, y_test = train_test_split(x_test_val, y_test_val, test_size=0.5, random_state=random_state)
+            print(x_train.shape)
+            print(x_val.shape)
+            print(x_test.shape)
+        else:
+            print("SF disabled")
+            x_train, x_test_val, y_train, y_test_val = train_test_split(final_x, y, test_size=0.3, random_state=random_state)
+            x_val, x_test, y_val, y_test = train_test_split(x_test_val, y_test_val, test_size=0.5, random_state=random_state)
+            print(x_train.shape)
+            print(x_val.shape)
+            print(x_test.shape)         
     
     else:
         final_x =np.column_stack((final_x,SF))
@@ -84,7 +93,23 @@ def generate_dataset(components,random_state):
         print(x_train.shape)
         print(x_val.shape)
         print(x_test.shape)    
-    
+
+        if sf_n>0:
+            print("SF enabled")
+            final_x =np.column_stack((final_x,SF))
+            x_train, x_test_val, y_train, y_test_val = train_test_split(final_x, y, test_size=0.3, random_state=random_state)
+            x_val, x_test, y_val, y_test = train_test_split(x_test_val, y_test_val, test_size=0.5, random_state=random_state)
+            print(x_train.shape)
+            print(x_val.shape)
+            print(x_test.shape)
+        else:
+            print("SF disabled")
+            x_train, x_test_val, y_train, y_test_val = train_test_split(final_x, y, test_size=0.3, random_state=random_state)
+            x_val, x_test, y_val, y_test = train_test_split(x_test_val, y_test_val, test_size=0.5, random_state=random_state)
+            print(x_train.shape)
+            print(x_val.shape)
+            print(x_test.shape)         
+            
     n_of_features = x_train.shape[1]
     print("Done Generating Dataset")
     return x_train,y_train,x_val,y_val,x_test,y_test,n_of_features,scaler_y
@@ -194,13 +219,13 @@ if __name__ == '__main__':
     parser.add_argument('--pca',type=int,default=0,help='Principal Component')
     parser.add_argument('--epoch',type=int,default=100,help='Number of training epoch')
     parser.add_argument('--patience',type=int,default=300,help='Training patience')
-    
+    parser.add_argument('--sf',type=int,default=0,'Spreading Factor as input')
     args = parser.parse_args()
     components=args.pca
     trial_name=str(args.trial_name)
     epochs=args.epoch
     patience=args.patience
-   
+    sf_n=args.sf
     dropout = 0.15
     l2 = 0.00
     lr = 0.0005
@@ -212,7 +237,7 @@ if __name__ == '__main__':
     tf.random.set_seed(42)
     random.seed(42)
     
-    x_train,y_train,x_val,y_val,x_test,y_test,n_of_features,scaler_y = generate_dataset(components,random_state)
+    x_train,y_train,x_val,y_val,x_test,y_test,n_of_features,scaler_y = generate_dataset(components,random_state,sf_n)
     model=create_model(n_of_features,dropout,l2,lr,random_state)
     trained_model = train(x_train, y_train,x_val,y_val,epochs,batch_size,patience,trial_name)
     validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name)
