@@ -122,7 +122,7 @@ def create_model(n_of_features,dropout,l2,lr,random_state):
     print("Done creating Model")
     return model;
 
-def train(x_train, y_train,x_val,y_val,epochs,batch_size,patience):
+def train(x_train, y_train,x_val,y_val,epochs,batch_size,patience,trial_name):
     print("Start Training")
     cb =[EarlyStopping(monitor='val_loss', patience=patience, verbose =1, restore_best_weights=True)]
     history = model.fit(x_train, y_train,validation_data=(x_val, y_val),epochs=epochs, batch_size=batch_size, verbose=1, callbacks= cb)
@@ -133,7 +133,7 @@ def train(x_train, y_train,x_val,y_val,epochs,batch_size,patience):
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig('training_curves.png')
+    plt.savefig(trial_name+'.png')
     print("training_complete")
     trained_model= model
     return trained_model
@@ -214,6 +214,6 @@ if __name__ == '__main__':
     
     x_train,y_train,x_val,y_val,x_test,y_test,n_of_features,scaler_y = generate_dataset(components,random_state)
     model=create_model(n_of_features,dropout,l2,lr,random_state)
-    trained_model = train(x_train, y_train,x_val,y_val,epochs,batch_size,patience)
+    trained_model = train(x_train, y_train,x_val,y_val,epochs,batch_size,patience,trial_name)
     validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name)
     save_model(trained_model,trial_name)
