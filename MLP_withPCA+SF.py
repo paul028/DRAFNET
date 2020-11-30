@@ -38,22 +38,59 @@ def get_powed_distance(x,minimum,b=1.1):
 	final_x = powed_x
 	return final_x
 
+def get_powed_distance_np(x,minimum,b=1.1):
+    positive_x= x-minimum
+    numerator = pow(positive_x,b)
+    denominator = (-minimum)**(b)
+    powed_x = numerator/denominator
+    final_x = powed_x
+    return final_x
 
-def generate_dataset(components,random_state,sf_n):
+def generate_dataset(components,random_state,sf_n,oor_value):
     print("Creating Dataset")
     file = p.read_csv('lorawan_antwerp_2019_dataset_withSF.csv')
     columns = file.columns
     x = file[columns[0:72]]
     SF = file[columns[73:74]]
     y = file[columns[75:]]
-
-    x = x.replace(-200,200) 
-    minimum = x.min().min() - 1
-    x = x.replace(200,minimum) #set dataset -200 to next posible minimum
-    print('minimum')
-    print(minimum)
     
-    final_x = get_powed_distance(x,minimum)
+    if oor_value==0:
+        print("Set out of range value to -200dBm")
+        x=x
+        final_x = get_powed_distance(x,-200)
+    if oor_value==1:
+        print("Set out of range value to -128dBm") #current experiment
+        x = x.replace(-200,200) 
+        minimum = x.min().min() - 1
+        x = x.replace(200,minimum) #set dataset -200 to next posible minimum
+        print('minimum')
+        print(minimum)
+        final_x = get_powed_distance(x,minimum)
+        
+    if oor_value==2: #rescale according to SF
+        print("Set out of range value according to SF")
+        x=np.array(x)
+        SF=np.array(SF)
+        
+        for q in range(len(SF)):
+            print("Updating data",q+1)
+            for w in range(len(x[q])):
+                if x[q][w]==-200:
+                    if SF[q]==7:
+                        x[q][w]= -123
+                    if SF[q]==8:
+                        x[q][w]= -126
+                    if SF[q]==9:
+                        x[q][w]= -129
+                    if SF[q]==10:
+                        x[q][w]= -132                    
+                    if SF[q]==11:
+                        x[q][w]= -134.5                    
+                    if SF[q]==12:
+                        x[q][w]= -137
+
+        final_x = get_powed_distance_np(x,-137)
+
     scaler_x = preprocessing.MinMaxScaler().fit(final_x)
     final_x = scaler_x.transform(final_x)
     
@@ -214,18 +251,20 @@ if __name__ == '__main__':
     tf.compat.v1.keras.backend.set_session(sess)
     tf.debugging.set_log_device_placement(True)
 
-    parser = argparse.ArgumentParser(description="--trial-name, --pca, --epoch,--patience")
+    parser = argparse.ArgumentParser(description="--trial-name, --pca, --epoch,--patience, --sf,--oor")
     parser.add_argument('--trial-name',type=str,required=True)
     parser.add_argument('--pca',type=int,default=0,help='Principal Component')
     parser.add_argument('--epoch',type=int,default=100,help='Number of training epoch')
     parser.add_argument('--patience',type=int,default=300,help='Training patience')
-    parser.add_argument('--sf',type=int,default=0,'Spreading Factor as input')
+    parser.add_argument('--sf',type=int,default=0,help='Spreading Factor as input [0] off [1] on')
+    parser.add_argument('--oor',type=int,default=0,help='RSSI Out of Range Values [0]-200dBm [1]-128dBm [2]SF dependent')
     args = parser.parse_args()
     components=args.pca
     trial_name=str(args.trial_name)
     epochs=args.epoch
     patience=args.patience
     sf_n=args.sf
+    oor_value =args.oor
     dropout = 0.15
     l2 = 0.00
     lr = 0.0005
@@ -237,7 +276,7 @@ if __name__ == '__main__':
     tf.random.set_seed(42)
     random.seed(42)
     
-    x_train,y_train,x_val,y_val,x_test,y_test,n_of_features,scaler_y = generate_dataset(components,random_state,sf_n)
+    x_train,y_train,x_val,y_val,x_test,y_test,n_of_features,scaler_y = generate_dataset(components,random_state,sf_n,oor_value)
     model=create_model(n_of_features,dropout,l2,lr,random_state)
     trained_model = train(x_train, y_train,x_val,y_val,epochs,batch_size,patience,trial_name)
     validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name)
