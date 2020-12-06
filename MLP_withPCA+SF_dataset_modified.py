@@ -47,10 +47,6 @@ def get_powed_distance_np(x,minimum,b=1.1):
     return final_x
 
 def generate_dataset(components,random_state,sf_n,oor_value):
-    oor_value=2
-    components=72
-    random_state=42
-    sf_n=1
     print("Creating Dataset")
     file = p.read_csv('lorawan_antwerp_2019_dataset_withSF.csv')
     columns = file.columns
@@ -119,9 +115,9 @@ def generate_dataset(components,random_state,sf_n,oor_value):
     
     scaler_y = preprocessing.MinMaxScaler().fit(y)
     y= scaler_y.transform(y)
-    
-    scaler_sf= preprocessing.MinMaxScaler().fit(SF)
-    SF=scaler_sf.transform(SF)
+    SF=SF.astype('float64')
+    for q in range(len(SF)):
+        SF[q]=float(SF[q]/12)
     
     if components >0:
         print("PCA enabled",components)
