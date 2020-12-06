@@ -74,11 +74,16 @@ def generate_dataset(components,random_state,sf_n,oor_value):
           delete_item.append(w)
           print("Row",w,"Less than 3 Gateways")
           
-    for w in range(len(delete_item)):
-        print("deleting row",delete_item[w]," Total Rows to delete: ",len(delete_item)," Remaining Rows: ",(size-len(delete_item)))
-        x=np.delete(x,delete_item[w])
-        y=np.delete(y,delete_item[w])
-        SF=np.delete(SF,delete_item[w])
+#    for w in range(len(delete_item)):
+#        print("deleting row",delete_item[w]," Total Rows to delete: ",len(delete_item)," Remaining Rows: ",(size-len(delete_item)))
+#        x=np.delete(x,delete_item[w])
+#        y=np.delete(y,delete_item[w])
+#        SF=np.delete(SF,delete_item[w])
+    
+    print(" Total Rows to delete: ",len(delete_item)," Remaining Rows: ",(size-len(delete_item)))
+    x=np.delete(x,delete_item)
+    y=np.delete(y,delete_item)
+    SF=np.delete(SF,delete_item)
     
     if oor_value==0:
         final_x = get_powed_distance_np(x,-200)
