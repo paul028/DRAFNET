@@ -72,8 +72,10 @@ def generate_dataset(components,random_state,sf_n,oor_value):
                 counter = counter+1
         if counter <3:
           delete_item.append(w)
-    
+          print("Row",w,"Less than 3 Gateways")
+          
     for w in range(len(delete_item)):
+        print("deleting row",delete_item[w])
         x=np.delete(x,delete_item[w])
         y=np.delete(y,delete_item[w])
         SF=np.delete(SF,delete_item[w])
