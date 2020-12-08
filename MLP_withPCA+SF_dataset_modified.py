@@ -79,7 +79,7 @@ def generate_dataset(components,random_state,sf_n,oor_value):
         final_x = get_powed_distance_np(x,-200)
         
     if oor_value==1: #set to -128dBm
-        print("Set out of range value to -128dBm") #current experiment        
+        print("Set out of range value to -200dBm") #current experiment        
         for w in range(len(x)):
             for q in range(BS):
                 if x[w][q]==-200:

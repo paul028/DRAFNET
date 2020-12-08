@@ -83,7 +83,7 @@ labels = [r'$3$',r'$5$',r'$7$',r'$10$',r'$40$',r'$44$',r'$72$']
 ax.set_xticks(x)
 ax.set_xticklabels(labels)
 ax.set_ylabel("Mean Positioning Error(m)")
-ax.set_xlabel("Number of Receiving Gateways")
+ax.set_xlabel("Number of Receiving Base Station")
 ax.set_title("Performance Comparison in Atwerp LoRaWAN Dataset")
 ax.legend(['7L_MLP+OOR1','7L_MLP+OOR1+SF','7L_MLP+OOR2','7L_MLP+OOR2+SF'])
 plt.savefig("model_performance_mean.png",dpi=200,bbox_inches = 'tight')
