@@ -48,6 +48,7 @@ def get_powed_distance_np(x,minimum,b=1.1):
     final_x = powed_x
     return final_x
 
+
 def generate_dataset(components,random_state,sf_n,oor_value):
     print("Creating Dataset")
     file = p.read_csv('lorawan_antwerp_2019_dataset_withSF.csv')
@@ -55,42 +56,23 @@ def generate_dataset(components,random_state,sf_n,oor_value):
     x = file[columns[0:72]]
     SF = file[columns[73:74]]
     y = file[columns[75:]]
-
-    x= np.array(x)
-    y=np.array(y)
-    SF=np.array(SF)
-    # delete rows with baase station less than 3
-    delete_item=list()
-    size = len(x)
-    BS= len(x[0])
-    for w in range(size):
-        counter =0
-        for q in range(BS):
-            if x[w][q] >-200:
-                counter = counter+1
-        if counter <3:
-          delete_item.append(w)
-          print("Row",w,"Less than 3 Gateways")
-          
-    print(" Total Rows to delete: ",len(delete_item)," Remaining Rows: ",(size-len(delete_item)))
-    x=np.delete(x,delete_item,axis=0)
-    y=np.delete(y,delete_item,axis=0)
-    SF=np.delete(SF,delete_item)
     
     if oor_value==0:
-        final_x = get_powed_distance_np(x,-200)
-        
-    if oor_value==1: #set to -128dBm
-        print("Set out of range value to -200dBm") #current experiment        
-        for w in range(len(x)):
-            for q in range(BS):
-                if x[w][q]==-200:
-                    x[w][q]=-128
-                
-        final_x = get_powed_distance_np(x,-128)
+        print("Set out of range value to -200dBm")
+        x=x
+        final_x = get_powed_distance(x,-200)
+    if oor_value==1:
+        print("Set out of range value to -128dBm") #current experiment
+        x = x.replace(-200,200) 
+        minimum = x.min().min() - 1
+        x = x.replace(200,minimum) #set dataset -200 to next posible minimum
+        print('minimum')
+        print(minimum)
+        final_x = get_powed_distance(x,minimum)
         
     if oor_value==2: #rescale according to SF
         print("Set out of range value according to SF")
+        x=np.array(x)
         SF=np.array(SF)
         
         for q in range(len(SF)):
@@ -117,12 +99,12 @@ def generate_dataset(components,random_state,sf_n,oor_value):
     
     scaler_y = preprocessing.MinMaxScaler().fit(y)
     y= scaler_y.transform(y)
-    SF=SF.astype('float64')
-    for q in range(len(SF)):
-        SF[q]=float(SF[q]/12)
+    
+    scaler_sf= preprocessing.MinMaxScaler().fit(SF)
+    SF=scaler_sf.transform(SF)
     
     if components >0:
-        print("PCA enabled",components)
+        print("PCA enabled",40)
         pca = PCA(n_components =components) 
           
         final_x = pca.fit_transform(final_x) 
@@ -218,16 +200,16 @@ def validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,sca
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')   
     plt.legend()
-    plt.savefig("modified_data/"+model_name+'_predictedmap_reduced.png',bbox_inches='tight',dpi=600)
+    plt.savefig(trial_name+'_predictedmap_reduced.png',bbox_inches='tight',dpi=600)
     
 
 def load_model(trial_name,n_of_features,dropout,l2,lr,random_state):
-    json_file = open("modified_data/"+trial_name+'.json', 'r')
+    json_file = open("original_data/"+trial_name+'.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     loaded_model = model_from_json(loaded_model_json)
     # load weights into new model
-    loaded_model.load_weights("modified_data/"+trial_name+".h5")
+    loaded_model.load_weights("original_data/"+trial_name+".h5")
     print("Loaded model from disk")
     loaded_model.compile(loss='mean_absolute_error',optimizer=Adam(lr=lr)) 
     return loaded_model

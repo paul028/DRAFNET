@@ -243,7 +243,7 @@ def validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,sca
     print("Test set  75th perc. error: {:.2f}".format(my_custom_haversine_error_stats(y_predict, y_test,'percentile',75)))
 
     test_error_list = calculate_pairwise_error_list(y_predict,y_test)
-    p.DataFrame(test_error_list).to_csv(trial_name+".csv")
+    p.DataFrame(test_error_list).to_csv("modified_data/"+trial_name+".csv")
     print("Experiment completed!!!")
 
 
@@ -256,11 +256,11 @@ def save_model(trained_model,trial_name):
     model_json = model.to_json()
     
     
-    with open(trial_name+".json", "w") as json_file:
+    with open("modified_data/"+trial_name+".json", "w") as json_file:
         json_file.write(model_json)
     
     # serialize weights to HDF5
-    model.save_weights(trial_name+".h5")
+    model.save_weights("modified_data/"+trial_name+".h5")
 
 
 if __name__ == '__main__':
