@@ -33,7 +33,7 @@ df_list=list()
 for w in range(len(trial_name)):
     df =list()
     for q in range(len(trial_name[w])):
-        df.append(pd.read_csv(trial_name[w][q],header=None).iloc[1:].values.astype('float64'))#.values.astype('float64')
+        df.append(pd.read_csv("original_data/"+trial_name[w][q],header=None).iloc[1:].values.astype('float64'))#.values.astype('float64')
     df_list.append(df) #[without,with][trial]
 
 

@@ -221,16 +221,14 @@ if __name__ == '__main__':
     tf.compat.v1.keras.backend.set_session(sess)
     tf.debugging.set_log_device_placement(True)
 
-    parser = argparse.ArgumentParser(description="--trial-name, -- model-name --pca, --sf,--oor")
+    parser = argparse.ArgumentParser(description="--trial-name,--pca, --sf,--oor")
     parser.add_argument('--trial-name',type=str,required=True)
-    parser.add_argument('--model-name',type=str,required=True)
     parser.add_argument('--pca',type=int,default=0,help='Principal Component')
     parser.add_argument('--sf',type=int,default=0,help='Spreading Factor as input [0] off [1] on')
     parser.add_argument('--oor',type=int,default=0,help='RSSI Out of Range Values [0]-200dBm [1]-128dBm [2]SF dependent')
     args = parser.parse_args()
     components=args.pca
     trial_name=str(args.trial_name)
-    model_name=str(args.model_name)
     sf_n=args.sf
     oor_value =args.oor
     dropout = 0.15

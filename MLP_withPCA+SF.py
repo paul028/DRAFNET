@@ -250,7 +250,7 @@ if __name__ == '__main__':
     sess = tf.compat.v1.Session(config=config) 
     tf.compat.v1.keras.backend.set_session(sess)
     tf.debugging.set_log_device_placement(True)
-
+	#to train the model. python --trial-name "trial name" --pca=[number of principal component 1-72] --epoch=[trainingepoch] --sf=[1-> sf input on , 2-> sf input off] --oor=[[0]-200dBm [1]-128dBm [2]SF dependent]
     parser = argparse.ArgumentParser(description="--trial-name, --pca, --epoch,--patience, --sf,--oor")
     parser.add_argument('--trial-name',type=str,required=True)
     parser.add_argument('--pca',type=int,default=0,help='Principal Component')

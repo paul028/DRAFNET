@@ -218,7 +218,7 @@ def validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,sca
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')   
     plt.legend()
-    plt.savefig("modified_data/"+model_name+'_predictedmap_reduced.png',bbox_inches='tight',dpi=600)
+    plt.savefig("modified_data/"+trial_name+'_predictedmap_reduced.png',bbox_inches='tight',dpi=600)
     
 
 def load_model(trial_name,n_of_features,dropout,l2,lr,random_state):
@@ -239,16 +239,14 @@ if __name__ == '__main__':
     tf.compat.v1.keras.backend.set_session(sess)
     tf.debugging.set_log_device_placement(True)
 
-    parser = argparse.ArgumentParser(description="--trial-name, -- model-name --pca, --sf,--oor")
+    parser = argparse.ArgumentParser(description="--trial-name,--pca, --sf,--oor")
     parser.add_argument('--trial-name',type=str,required=True)
-    parser.add_argument('--model-name',type=str,required=True)
     parser.add_argument('--pca',type=int,default=0,help='Principal Component')
     parser.add_argument('--sf',type=int,default=0,help='Spreading Factor as input [0] off [1] on')
     parser.add_argument('--oor',type=int,default=0,help='RSSI Out of Range Values [0]-200dBm [1]-128dBm [2]SF dependent')
     args = parser.parse_args()
     components=args.pca
     trial_name=str(args.trial_name)
-    model_name=str(args.model_name)
     sf_n=args.sf
     oor_value =args.oor
     dropout = 0.15
@@ -266,4 +264,4 @@ if __name__ == '__main__':
     
     trained_model=load_model(trial_name,n_of_features,dropout,l2,lr,random_state)
     
-    validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name,batch_size,model_name)
+    validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name,batch_size)
