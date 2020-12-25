@@ -5,6 +5,13 @@ Created on Fri Dec 25 22:43:59 2020
 @author: Paul Vincent Nonat
 """
 
+#DRAF preprocessing experiment
+#extratrees reimplementation using the extra trees model from
+#[1] G. G. Anagnostopoulos and A. Kalousis,
+# “A reproducible comparison of rssi fingerprinting 
+#localization methods using LoRaWAN,” 
+#2019 16th Work. Positioning, Navig. Commun. WPNC 2019, pp. 3–8, 2019.
+
 import time
 from haversine_script import *
 import numpy as np
