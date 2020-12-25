@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Nov 23 10:21:59 2020
+
+@author: Paul Vincent Nonat
+"""
+
 import time
 from haversine_script import *
 import numpy as np
@@ -226,6 +233,24 @@ def validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,sca
     test_error_list = calculate_pairwise_error_list(y_predict,y_test)
     p.DataFrame(test_error_list).to_csv("original_data/"+trial_name+".csv")
     print("Experiment completed!!!")
+    y_predict_lat=list()
+    y_predict_long=list()
+    y_test_lat=list()
+    y_test_long=list()
+    for x in range(len(y_predict)):
+       y_predict_lat.append(y_predict[x][0])
+       y_predict_long.append(y_predict[x][1])
+       y_test_lat.append(y_test[x][0])
+       y_test_long.append(y_test[x][1])
+       #plt.plot([y_predict[x][0],y_test[x][0]],[y_predict[x][1],y_test[x][1]],color='green')
+    
+    plt.scatter(y_predict_lat,y_predict_long,s=0.1, marker='.',color='red',label='Predicted Pos')
+    plt.scatter(y_test_lat,y_test_long,s=0.1,marker='*',color='blue',label='Ground Truth Pos')
+    plt.title(trial_name+' Predicted Postion Map in Reduced Antwerp LoraWan Dataset')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')   
+    plt.legend()
+    plt.savefig("original_data/"+trial_name+'_predictedmap_original.png',bbox_inches='tight',dpi=600)
 
 
 def save_model(trained_model,trial_name):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov 23 10:21:59 2020
+Created on Fri Dec 25 22:43:59 2020
 
 @author: Paul Vincent Nonat
 """
@@ -8,20 +8,12 @@ Created on Mon Nov 23 10:21:59 2020
 import time
 from haversine_script import *
 import numpy as np
-import tensorflow as tf
 import random
 import pandas as p
 import math
 import matplotlib.pyplot as plt
 import os
 import argparse
-from tensorflow.keras import backend as K
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout,Activation,BatchNormalization
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
-from tensorflow.keras.callbacks import Callback, TensorBoard, ModelCheckpoint, EarlyStopping
-from tensorflow.keras import regularizers
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
@@ -36,6 +28,14 @@ from sklearn.decomposition import PCA
 #	exponential_x = exponential_x * 1000  #facilitating calculations
 #	final_x = exponential_x
 #	return final_x
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import KFold
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.pipeline import Pipeline
+from sklearn import preprocessing
+from sklearn.ensemble import ExtraTreesRegressor
+from sklearn.model_selection import GridSearchCV
+import pickle# to save trained machine learning model
 
 def get_powed_distance(x,minimum,b=1.1):
 	positive_x= x-minimum
@@ -52,6 +52,7 @@ def get_powed_distance_np(x,minimum,b=1.1):
     powed_x = numerator/denominator
     final_x = powed_x
     return final_x
+
 
 def generate_dataset(components,random_state,sf_n,oor_value):
     print("Creating Dataset")
@@ -178,60 +179,16 @@ def generate_dataset(components,random_state,sf_n,oor_value):
     return x_train,y_train,x_val,y_val,x_test,y_test,n_of_features,scaler_y
 
 
-def create_model(n_of_features,dropout,l2,lr,random_state):
-    print("Creating Model")
-    model = Sequential()
-    model.add(Dense(units=1024, input_dim=n_of_features, kernel_regularizer=regularizers.l2(l2)))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dropout(dropout, seed=random_state))
-    model.add(Dense(units=1024, input_dim=n_of_features, kernel_regularizer=regularizers.l2(l2)))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dropout(dropout, seed=random_state))
-    model.add(Dense(units=1024, input_dim=n_of_features, kernel_regularizer=regularizers.l2(l2)))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dropout(dropout, seed=random_state))
-    model.add(Dense(units=256, kernel_regularizer=regularizers.l2(l2)))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dropout(dropout, seed=random_state))
-    model.add(Dense(units=128, kernel_regularizer=regularizers.l2(l2)))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(Dropout(dropout, seed=random_state))
-    model.add(Dense(units=128, kernel_regularizer=regularizers.l2(l2)))
-    model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    # model.add(Dropout(dropout))
-    model.add(Dense(units=2))
-    model.compile(loss='mean_absolute_error',optimizer=Adam(lr=lr))
-    print("Done creating Model")
-    return model;
-
-def train(x_train, y_train,x_val,y_val,epochs,batch_size,patience,trial_name):
-    print("Start Training")
-    cb =[EarlyStopping(monitor='val_loss', patience=patience, verbose =1, restore_best_weights=True)]
-    history = model.fit(x_train, y_train,validation_data=(x_val, y_val),epochs=epochs, batch_size=batch_size, verbose=1, callbacks= cb)
+def train_extratrees(x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name,random_state):
+    print("training extra trees")
+    reg = ExtraTreesRegressor(n_estimators=100,max_depth=40, min_samples_split=14, min_samples_leaf=1,n_jobs=2, random_state=random_state)
+    reg.fit(x_train, y_train)
     
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig(trial_name+'.png')
-    print("training_complete")
-    trained_model= model
-    return trained_model
-
-def validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name):
-    model=trained_model
-    y_predict = model.predict(x_test, batch_size=batch_size) 
-    y_predict_in_val = model.predict(x_val, batch_size=batch_size)
-    y_predict_in_train = model.predict(x_train, batch_size=batch_size)
+    y_predict_in_train = reg.predict(x_train)
+    y_predict_in_val = reg.predict(x_val)
+    y_predict = reg.predict(x_test)
     
+
     y_predict = scaler_y.inverse_transform(y_predict)
     y_predict_in_train = scaler_y.inverse_transform(y_predict_in_train)
     y_predict_in_val = scaler_y.inverse_transform(y_predict_in_val)
@@ -250,9 +207,8 @@ def validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,sca
     print("Test set  75th perc. error: {:.2f}".format(my_custom_haversine_error_stats(y_predict, y_test,'percentile',75)))
 
     test_error_list = calculate_pairwise_error_list(y_predict,y_test)
-    p.DataFrame(test_error_list).to_csv("modified_data/"+trial_name+".csv")
+    p.DataFrame(test_error_list).to_csv("extratress_modified/"+trial_name+".csv")
     print("Experiment completed!!!")
-
     y_predict_lat=list()
     y_predict_long=list()
     y_test_lat=list()
@@ -270,49 +226,28 @@ def validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,sca
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')   
     plt.legend()
-    plt.savefig("modified_data/"+trial_name+'_predictedmap_reduced.png',bbox_inches='tight',dpi=600)
-    
+    plt.savefig("extratress_modified/"+trial_name+'_predictedmap_original.png',bbox_inches='tight',dpi=600)
+
+
 def save_model(trained_model,trial_name):
-    from tensorflow.keras.models import model_from_json
-    from tensorflow.keras.models import load_model
-    
-    # serialize model to JSON
-    #  the keras model which is trained is defined as 'model' in this example
-    model_json = model.to_json()
-    
-    
-    with open("modified_data/"+trial_name+".json", "w") as json_file:
-        json_file.write(model_json)
-    
-    # serialize weights to HDF5
-    model.save_weights("modified_data/"+trial_name+".h5")
+    filename = "extratress_modified/"+trial_name+'.sav'
+    pickle.dump(trained_model, open(filename, 'wb'))
 
 
 if __name__ == '__main__':
 
-    config = tf.compat.v1.ConfigProto( device_count = {'GPU': 1 } ) 
-    sess = tf.compat.v1.Session(config=config) 
-    tf.compat.v1.keras.backend.set_session(sess)
-    tf.debugging.set_log_device_placement(True)
-
-    parser = argparse.ArgumentParser(description="--trial-name, --pca, --epoch,--patience, --sf,--oor")
+	#to train the model. python --trial-name "trial name" --pca=[number of principal component 1-72] --epoch=[trainingepoch] --sf=[1-> sf input on , 2-> sf input off] --oor=[[0]-200dBm [1]-128dBm [2]SF dependent]
+    parser = argparse.ArgumentParser(description="--trial-name, --pca, --sf,--oor")
     parser.add_argument('--trial-name',type=str,required=True)
     parser.add_argument('--pca',type=int,default=0,help='Principal Component')
-    parser.add_argument('--epoch',type=int,default=100,help='Number of training epoch')
-    parser.add_argument('--patience',type=int,default=300,help='Training patience')
     parser.add_argument('--sf',type=int,default=0,help='Spreading Factor as input [0] off [1] on')
     parser.add_argument('--oor',type=int,default=0,help='RSSI Out of Range Values [0]-200dBm [1]-128dBm [2]SF dependent')
     args = parser.parse_args()
     components=args.pca
     trial_name=str(args.trial_name)
-    epochs=args.epoch
-    patience=args.patience
     sf_n=args.sf
     oor_value =args.oor
-    dropout = 0.15
-    l2 = 0.00
-    lr = 0.0005
-    batch_size= 512
+
 
     random_state = 42
     os.environ['PYTHONHASHSEED'] = "42"
@@ -321,7 +256,5 @@ if __name__ == '__main__':
     random.seed(42)
     
     x_train,y_train,x_val,y_val,x_test,y_test,n_of_features,scaler_y = generate_dataset(components,random_state,sf_n,oor_value)
-    model=create_model(n_of_features,dropout,l2,lr,random_state)
-    trained_model = train(x_train, y_train,x_val,y_val,epochs,batch_size,patience,trial_name)
-    validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name)
+    trained_model =train_extratrees(x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name,random_state)
     save_model(trained_model,trial_name)
