@@ -246,7 +246,7 @@ def validate_model(trained_model, x_train ,y_train,x_val,y_val,x_test,y_test,sca
     
     plt.scatter(y_predict_lat,y_predict_long,s=0.1, marker='.',color='red',label='Predicted Pos')
     plt.scatter(y_test_lat,y_test_long,s=0.1,marker='*',color='blue',label='Ground Truth Pos')
-    plt.title(trial_name+' Predicted Postion Map in Reduced Antwerp LoraWan Dataset')
+    plt.title(trial_name+' Predicted Postion Map in Original Antwerp LoraWan Dataset')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')   
     plt.legend()
