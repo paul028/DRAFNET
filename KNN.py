@@ -186,7 +186,7 @@ def train_KNN(x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name,ran
     print("Test set  75th perc. error: {:.2f}".format(my_custom_haversine_error_stats(y_predict, y_test,'percentile',75)))
     
     test_error_list = calculate_pairwise_error_list(y_predict,y_test)
-    p.DataFrame(test_error_list).to_csv("extratress_original/"+trial_name+".csv")
+    p.DataFrame(test_error_list).to_csv("KNN_original/"+trial_name+".csv")
     print("Experiment completed!!!")
     y_predict_lat=list()
     y_predict_long=list()

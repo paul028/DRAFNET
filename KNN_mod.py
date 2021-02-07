@@ -207,7 +207,7 @@ def train_KNN(x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name,ran
     print("Test set  75th perc. error: {:.2f}".format(my_custom_haversine_error_stats(y_predict, y_test,'percentile',75)))
     
     test_error_list = calculate_pairwise_error_list(y_predict,y_test)
-    p.DataFrame(test_error_list).to_csv("extratress_original/"+trial_name+".csv")
+    p.DataFrame(test_error_list).to_csv("KNN_modified/"+trial_name+".csv")
     print("Experiment completed!!!")
     y_predict_lat=list()
     y_predict_long=list()
@@ -226,11 +226,11 @@ def train_KNN(x_train ,y_train,x_val,y_val,x_test,y_test,scaler_y,trial_name,ran
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')   
     plt.legend()
-    plt.savefig("KNN_original/"+trial_name+'_predictedmap_original.png',bbox_inches='tight',dpi=600)
+    plt.savefig("KNN_modified/"+trial_name+'_predictedmap_original.png',bbox_inches='tight',dpi=600)
 
 
 def save_model(trained_model,trial_name):
-    filename = "KNN_original/"+trial_name+'.sav'
+    filename = "KNN_modified/"+trial_name+'.sav'
     pickle.dump(trained_model, open(filename, 'wb'))
 
 
